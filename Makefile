@@ -9,7 +9,7 @@ all: main
 main: main.o
 	$(CC) main.o $(LFLAGS) -o Snake
 
-main.o: main.cpp
-	$(CC) $(CFLAGS) main.cpp 
+main.o: ./src/main.cpp
+	$(CC) $(CFLAGS) ./src/main.cpp 
 
 
