@@ -11,15 +11,15 @@
 size_t snakeOk(SnakeGame* snakeGame)
 {
     Point maxFieldCorner = { snakeMaxFieldSizeX, snakeMaxFieldSizeY };
-    snakeOkAssert( isPointWithinBoundsAndZero(snakeGame->fieldCorner, maxFieldCorner)          ,  maxFieldCorner                 );
+    snakeOkAssert( isPointWithinBoundsAndZero(snakeGame->fieldCorner, maxFieldCorner)          ,  maxFieldCorner                 )
 
-    snakeOkAssert( snakeGame                                                                   ,  snakeGame                      );
-    snakeOkAssert( &snakeGame->snake                                                           ,  snake                          );
-    snakeOkAssert( snakeGame->snake.bodyPos                                                    ,  bodyPos                        );
-    snakeOkAssert( isPointWithinBoundsAndZero(snakeGame->snake.headPos, snakeGame->fieldCorner),  headPosWithinBounds            );
-    snakeOkAssert( snakeGame->snake.len <= snakeGame->snake.bodyPosSize                        ,  lenLessThanBodyPosSize         );
-    snakeOkAssert( snakeGame->snake.bodyPosSize <= snakeMaxFieldSizeX * snakeMaxFieldSizeY     ,  bodyPosSizeLessThanFieldSquare );
-    snakeOkAssert( snakeGame->snake.dir != snakeDirError                                       ,  snakeDirValid                  );
+    snakeOkAssert( snakeGame                                                                   ,  snakeGame                      )
+    snakeOkAssert( &snakeGame->snake                                                           ,  snake                          )
+    snakeOkAssert( snakeGame->snake.bodyPos                                                    ,  bodyPos                        )
+    snakeOkAssert( isPointWithinBoundsAndZero(snakeGame->snake.headPos, snakeGame->fieldCorner),  headPosWithinBounds            )
+    snakeOkAssert( snakeGame->snake.len <= snakeGame->snake.bodyPosSize                        ,  lenLessThanBodyPosSize         )
+    snakeOkAssert( snakeGame->snake.bodyPosSize <= snakeMaxFieldSizeX * snakeMaxFieldSizeY     ,  bodyPosSizeLessThanFieldSquare )
+    snakeOkAssert( snakeGame->snake.dir != snakeDirError                                       ,  snakeDirValid                  )
 
     snakeOkAssertClose();
 

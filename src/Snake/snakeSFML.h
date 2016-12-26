@@ -1,4 +1,5 @@
-#include "Snake/snake.h"
+
+#include "snake.h"
 
 SnakeGame* snakeGameInit()
 {
@@ -9,6 +10,7 @@ SnakeGame* snakeGameInit()
 
     size_t fieldSizeX = 0, fieldSizeY = 0;
     size_t snakeStartPosX = 0, snakeStartPosY = 0;
+    size_t fruitsNumber = 0;
 
     printf("# Enter fieldSizeX, fieldSizeY\n");
     while (scanf ("%lu %lu", &fieldSizeX, &fieldSizeY) != 2)
@@ -26,10 +28,18 @@ SnakeGame* snakeGameInit()
         scanf ("%*[^\n]");
     }
 
+    printf("\n# Enter number of fruit photos uploaded\n");
+    while (scanf ("%lu", &fruitsNumber) != 1)
+    {
+        printf ("# Input was incorrect\n");
+        printf ("# Enter number of fruit photos uploaded\n");
+        scanf ("%*[^\n]");
+    }
+
     Point snakeStartPos  = { snakeStartPosX, snakeStartPosY };
     Point fieldSize      = { fieldSizeX    , fieldSizeY     };
 
-    snakeCtor(snakeGame, fieldSize, snakeStartPos);
+    snakeCtor(snakeGame, fieldSize, snakeStartPos, fruitsNumber);
 
     return snakeGame;
 }
@@ -61,49 +71,49 @@ SnakeDir getSnakeDirFromChar(sf::Keyboard::Key key)
     }
 };
 
-void snakeProcessEvent(sf::RenderWindow* window, sf::Event* event, snakeGame* snakeGame)
+void snakeProcessEvent(sf::RenderWindow* window, sf::Event* event, SnakeGame* snakeGame)
 {
-    assert(snake);
+    snakeAssert(snakeGame);
 
-    switch (event.type)
+    switch (event->type)
     {
         case sf::Event::Closed:
         {
-            window.close();
+            window->close();
         }; break;
 
-        case sf::Event::KeyEvent:
+        case sf::Event::KeyPressed:
         {
-            switch (event.KeyEvent.code)
+#define isSFKey(a) (event->key.code == sf::Keyboard::Key::a)
+            if ( isSFKey(H) || isSFKey(J) || isSFKey(K) || isSFKey(L) ) 
             {
-                case sf::Keyboard::Key::H:
-                case sf::Keyboard::Key::J:
-                case sf::Keyboard::Key::K:
-                case sf::Keyboard::Key::L:
-                {
-                    snakeChangeDir(getSnakeDirFromChar(event.KeyEvent.code));
-                }; break;
-                case sf::Keyboard::Key::Escape:
-                {
-                    window.close();
-                };
+                snakeChangeDir(snakeGame, getSnakeDirFromChar(event->key.code));
+            } else
+            if isSFKey(Escape)
+            {
+                window->close();
             };
+#undef isSFKey
         }; break;
 
         default: break;
     }
 }
 
+
+
 void snakeUT()
 {
-    //Init snakeGame == get field size from input
+    //Init snakeGame == get field size and start snake point from input
     SnakeGame* snakeGame = snakeGameInit();
     assert(snakeGame);
 
     //Init Window and Clock
-    sf::RenderWindow window(sf::VideoMode(800, 600), snakeNameAndVersion);
+    sf::RenderWindow window(sf::VideoMode(snakeTileSize*(snakeGame->fieldCorner.x + 2), snakeTileSize*(snakeGame->fieldCorner.x + 2)), snakeNameAndVersion, sf::Style::Fullscreen);
 
-    sf::Clock clock; clock.restart();
+    sf::Clock clock;
+
+    //Draw background
 
     //Main Loop
     while (window.isOpen())
@@ -115,18 +125,31 @@ void snakeUT()
         }
         
         window.clear(sf::Color::Black);
-
-        if ( clock.getElapsedTime().asMilliseconds >= 500 )
+        
+        //Make move
+        if ( clock.getElapsedTime().asMilliseconds() >= snakeOneStepDuration )
         {
             clock.restart();
             snakeMove(snakeGame);
-
+                
             SnakeGameStatus status = snakeGameNotEnd;
-            if (isEndOfSnakeGame(snakeGame) == snakeGameNotEnd)
+            if ( (status = isEndOfSnakeGame(snakeGame) ) != snakeGameNotEnd )
             {
-                //display that player won|losed
+                window.close();
+                if (status == snakeGameWin)
+                {
+                    printf("You won.\n");
+                } else
+                {
+                    printf("You losed. Try again!\n");
+                }
             }
         };
+        //Draw some stuff
+        for (size_t i = 0; i < snakeGame->snake.len - 1; i++)
+            window.draw(snakeGame->snake.bodySprite[i]);
+        window.draw(snakeGame->fieldSprite);
+        window.draw(snakeGame->snake.headSprite);
 
         window.display();
     }

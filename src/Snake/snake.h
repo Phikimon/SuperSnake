@@ -1,6 +1,7 @@
 #ifndef SNAKE_H_INCLUDED
 #define SNAKE_H_INCLUDED
 
+#include <SFML/Graphics.hpp>
 #include "/home/philipp/Documents/Ded/lib/common.h"
 #include "../Point/point.h"
 
@@ -25,6 +26,11 @@
     * |     is within field      |             not null             |      not null     |       not null        |
     * +--------------------------+----------------------------------+-------------------+-----------------------+
     */
+
+enum SNMLERR_t //SNML = SFML + SNAKE
+{
+    SNMLERR_OPFILE,
+};
 
 enum SNAKEERR_t
 {
@@ -64,12 +70,16 @@ int snakeErrorPrint(SNAKEERR_t err)
 
 //CONSTANTS
 
+enum { snakeTileSize = 20 };
+
 enum { snakeInitBodyPosArraySize = 4 };
 
-enum { snakeMaxFieldSizeX = 20 };
-enum { snakeMaxFieldSizeY = 20 };
+enum { snakeMaxFieldSizeX = 50 };
+enum { snakeMaxFieldSizeY = 50 };
 
 enum { REALLOC_FACTOR = 2 };
+
+enum { snakeOneStepDuration = 500 }; //in microseconds
 
 #define snakeNameAndVersion "SuperSnake v1.0beta"
 
@@ -96,6 +106,9 @@ enum SnakeGameStatus
 struct SnakeFruit
 {
     Point fruitPos;
+
+    sf::Texture fruitTexture;
+    sf::Sprite  fruitSprite; 
 };
 
 struct Snake
@@ -106,6 +119,12 @@ struct Snake
 
     Point headPos;
     SnakeDir dir;
+
+    sf::Texture bodyTexture;
+    sf::Texture headTexture;
+
+    sf::Sprite  headSprite;
+    sf::Sprite* bodySprite;
 };
 
 struct SnakeGame
@@ -114,6 +133,9 @@ struct SnakeGame
     Snake snake;
 
     //Field parameters
+    sf::Texture fieldTexture;
+    sf::Sprite fieldSprite;
+
     Point fieldCorner;
      /* 
          O   0          X
@@ -127,6 +149,9 @@ struct SnakeGame
 
     //Current fruit
     SnakeFruit fruit;
+
+    sf::Texture* fruitTexture;
+    size_t fruitTexturesNum;
 };
 
 //Functions for Snake Game
@@ -134,7 +159,7 @@ struct SnakeGame
 /*
  * Constructor for snake game instance
  */
-void snakeCtor(SnakeGame* snakeGame, Point fieldSize, Point snakeStartPos);
+void snakeCtor(SnakeGame* snakeGame, Point fieldSize, Point snakeStartPos, size_t fruitPhotosNumber);
 
 /*
  * Destructor for snake game instance
@@ -145,7 +170,7 @@ void snakeDtor(SnakeGame* snakeGame);
  * Reallocate memory for body positions array.
  * New size = Old Size * REALLOC_FACTOR.
  */
-int snakeReallocBodyPos(SnakeGame* snakeGame);
+int reallocSnake(SnakeGame* snakeGame);
 
 /*
  * Change snake directory(can be called between two snake moves)
@@ -180,7 +205,27 @@ bool isSnakeFieldFilled(SnakeGame* snakeGame);
 /*
  * Returns SnakeGameStatus.
  */
-int isEndOfSnakeGame(SnakeGame* snakeGame);
+SnakeGameStatus isEndOfSnakeGame(SnakeGame* snakeGame);
+
+/*
+ * Returns if headPos is equal to fruitPos; is called in snakeMove
+ */
+bool isFruitEaten(SnakeGame* snakeGame);
+
+/*
+ * Generates and draws new fruit; destroys old fruit
+ */
+void generateNewFruit(SnakeGame* snakeGame);
+
+/*
+ * Converts coordinates on field to coordinates in pixels
+ */
+sf::Vector2f posInField2posOnScreen(Point inField);
+
+/*
+ * Verificator for snakeGame
+ */
+size_t snakeOk(SnakeGame* snakeGame);
 
 #define snakeAssert(snakeGame) \
 { \
@@ -194,6 +239,6 @@ int isEndOfSnakeGame(SnakeGame* snakeGame);
 
 #include "snake.cpp"
 
-#undef snakeAssert
+//#undef snakeAssert
 
 #endif // SNAKE_H_INCLUDED

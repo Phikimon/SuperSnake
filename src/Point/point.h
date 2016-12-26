@@ -11,6 +11,10 @@ struct Point
     size_t y;
 };
 
+bool isPointWithinBoundsAndZero(Point point, Point boundsIntersection);
+
+bool arePointsEqual(Point point1, Point point2);
+
 #include "point.cpp"
 
 #endif //POINT_H_INCLUDED
